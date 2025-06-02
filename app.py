@@ -14,6 +14,879 @@ CORS(app,
          "supports_credentials": True
      }})
 
+# Template HTML para la página de inicio
+HTML_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Aprendizaje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #E3F2FD;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+        }
+
+        .auth-form {
+            padding: 40px;
+            width: 50%;
+            background: white;
+        }
+
+        .auth-info {
+            padding: 40px;
+            width: 50%;
+            background: #0091FF;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            color: #0091FF;
+            font-size: 2em;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0091FF;
+            box-shadow: 0 0 0 3px rgba(0, 145, 255, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #0091FF;
+            color: white;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #007acc;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .auth-form, .auth-info {
+                width: 100%;
+            }
+        }
+
+        .error-message {
+            color: #e74c3c;
+            background: #ffd7d7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .success-message {
+            color: #27ae60;
+            background: #d4ffda;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container" id="authContainer">
+        <!-- Formulario de Login -->
+        <div class="auth-form" id="loginForm">
+            <h1>Iniciar Sesión</h1>
+            <div class="error-message" id="loginError"></div>
+            <div class="success-message" id="loginSuccess"></div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <input type="email" name="email" required placeholder="Correo Electrónico">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" required placeholder="Contraseña">
+                </div>
+                <button type="submit">Entrar</button>
+            </form>
+        </div>
+        
+        <!-- Información adicional -->
+        <div class="auth-info">
+            <h2>¿Aún no tienes una cuenta?</h2>
+            <p>Regístrate para que puedas iniciar sesión</p>
+            <button onclick="toggleForms()" style="background: white; color: #0091FF;">Registrarse</button>
+        </div>
+
+        <!-- Formulario de Registro -->
+        <div class="auth-form" id="registerForm" style="display: none;">
+            <h1>Registro</h1>
+            <div class="error-message" id="registerError"></div>
+            <div class="success-message" id="registerSuccess"></div>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <input type="text" name="name" required placeholder="Nombre Completo">
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" required placeholder="Correo Electrónico">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" required placeholder="Contraseña">
+                </div>
+                <button type="submit">Registrarse</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isLoginForm = true;
+
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const authInfo = document.querySelector('.auth-info');
+
+            if (isLoginForm) {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                authInfo.innerHTML = `
+                    <h2>¿Ya tienes una cuenta?</h2>
+                    <p>Inicia sesión para continuar aprendiendo</p>
+                    <button onclick="toggleForms()" style="background: white; color: #0091FF;">Iniciar Sesión</button>
+                `;
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                authInfo.innerHTML = `
+                    <h2>¿Aún no tienes una cuenta?</h2>
+                    <p>Regístrate para que puedas iniciar sesión</p>
+                    <button onclick="toggleForms()" style="background: white; color: #0091FF;">Registrarse</button>
+                `;
+            }
+            isLoginForm = !isLoginForm;
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    document.getElementById('loginSuccess').style.display = 'block';
+                    document.getElementById('loginSuccess').textContent = '¡Inicio de sesión exitoso!';
+                    window.location.href = '/dashboard';
+                } else {
+                    const error = await response.json();
+                    document.getElementById('loginError').style.display = 'block';
+                    document.getElementById('loginError').textContent = error.error || 'Error al iniciar sesión';
+                }
+            } catch (error) {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('loginError').textContent = 'Error de conexión';
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    document.getElementById('registerSuccess').style.display = 'block';
+                    document.getElementById('registerSuccess').textContent = '¡Registro exitoso! Redirigiendo...';
+                    setTimeout(() => {
+                        toggleForms();
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    document.getElementById('registerError').style.display = 'block';
+                    document.getElementById('registerError').textContent = error.error || 'Error al registrarse';
+                }
+            } catch (error) {
+                document.getElementById('registerError').style.display = 'block';
+                document.getElementById('registerError').textContent = 'Error de conexión';
+            }
+        }
+    </script>
+</body>
+</html>
+'''
+
+# Template para el Dashboard
+DASHBOARD_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Sistema de Aprendizaje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #E3F2FD;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #0091FF;
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 2em;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e1e1e1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0091FF;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .start-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #0091FF;
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .start-button:hover {
+            background: #007acc;
+            transform: translateY(-2px);
+        }
+
+        .completed {
+            background: #4CAF50;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">Inicio</a>
+            <a href="/progress" class="nav-link">Progreso</a>
+            <a href="/profile" class="nav-link">Perfil</a>
+            <a href="/logout" class="nav-link">Cerrar Sesión</a>
+        </div>
+        <div class="user-info">
+            <img src="{{ current_user.profile_photo }}" alt="Foto de perfil" class="user-photo">
+            <span>{{ current_user.name }}</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="grid">
+            {% for field in study_fields %}
+            <div class="card" style="border-top: 5px solid {{ field.color }}">
+                <div class="card-header">
+                    <span class="card-icon">{{ field.icon }}</span>
+                    <h2 class="card-title">{{ field.name }}</h2>
+                </div>
+                <p class="card-description">{{ field.description }}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ field.progress }}%; background: {{ field.color }}"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ field.completed_cards }}/{{ field.total_cards }} tarjetas</span>
+                    <span>{{ field.progress }}%</span>
+                </div>
+                <a href="/{{ field.route }}" class="start-button" style="background: {{ field.color }}">
+                    {% if field.completed %}
+                        Repasar
+                    {% else %}
+                        Comenzar
+                    {% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+# Template para el Perfil
+PROFILE_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perfil - Sistema de Aprendizaje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #E3F2FD;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #0091FF;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #0091FF;
+        }
+
+        .profile-info h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .profile-info p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0091FF;
+            box-shadow: 0 0 0 3px rgba(0, 145, 255, 0.1);
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #0091FF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #007acc;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">Inicio</a>
+            <a href="/progress" class="nav-link">Progreso</a>
+            <a href="/profile" class="nav-link">Perfil</a>
+            <a href="/logout" class="nav-link">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-header">
+            <img src="{{ current_user.profile_photo }}" alt="Foto de perfil" class="profile-photo">
+            <div class="profile-info">
+                <h1>{{ current_user.name }}</h1>
+                <p>{{ current_user.email }}</p>
+            </div>
+        </div>
+
+        <form action="/update-profile" method="POST">
+            <div class="form-group">
+                <label for="name">Nombre</label>
+                <input type="text" id="name" name="name" value="{{ current_user.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="profile_photo">URL de Foto de Perfil</label>
+                <input type="url" id="profile_photo" name="profile_photo" value="{{ current_user.profile_photo }}">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Nueva Contraseña (dejar en blanco para mantener la actual)</label>
+                <input type="password" id="password" name="password">
+            </div>
+
+            <button type="submit">Actualizar Perfil</button>
+        </form>
+    </div>
+</body>
+</html>
+'''
+
+# Template para la página de Progreso
+PROGRESS_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Progreso - Sistema de Aprendizaje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #E3F2FD;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #0091FF;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .progress-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-icon {
+            font-size: 2em;
+        }
+
+        .progress-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e1e1e1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0091FF;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .progress-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">Inicio</a>
+            <a href="/progress" class="nav-link">Progreso</a>
+            <a href="/profile" class="nav-link">Perfil</a>
+            <a href="/logout" class="nav-link">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="progress-grid">
+            {% for item in progress_data %}
+            <div class="progress-card">
+                <div class="progress-header">
+                    <span class="progress-icon">{{ item.icon }}</span>
+                    <h2 class="progress-title">{{ item.name }}</h2>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ item.progress }}%; background: {{ item.color }}"></div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ item.completed_cards }}/{{ item.total_cards }}</div>
+                        <div class="stat-label">Tarjetas Completadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ item.best_score }}</div>
+                        <div class="stat-label">Mejor Puntuación</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ item.progress }}%</div>
+                        <div class="stat-label">Progreso Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ item.last_activity }}</div>
+                        <div class="stat-label">Última Actividad</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+'''
+
 # Configuración
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'tu_clave_secreta_aqui')
