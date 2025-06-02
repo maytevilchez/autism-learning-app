@@ -476,7 +476,7 @@ DASHBOARD_TEMPLATE = '''
                 </div>
                 <div class="progress-text">
                     <span>{{ field.completed_cards }}/{{ field.total_cards }} tarjetas</span>
-                    <span>{{ field.progress }}%</span>
+                    <span>{{ "%.1f"|format(field.progress) }}%</span>
                 </div>
                 <a href="/{{ field.route }}" class="start-button" style="background: {{ field.color }}">
                     {% if field.completed %}
@@ -624,7 +624,7 @@ PROFILE_TEMPLATE = '''
             .navbar {
                 flex-direction: column;
                 gap: 15px;
-                text-align: center;
+            text-align: center;
             }
 
             .nav-links {
@@ -658,29 +658,29 @@ PROFILE_TEMPLATE = '''
             <div class="profile-info">
                 <h1>{{ current_user.name }}</h1>
                 <p>{{ current_user.email }}</p>
-            </div>
-        </div>
+                    </div>
+                    </div>
 
         <form action="/update-profile" method="POST">
             <div class="form-group">
                 <label for="name">Nombre</label>
                 <input type="text" id="name" name="name" value="{{ current_user.name }}" required>
-            </div>
+        </div>
 
             <div class="form-group">
                 <label for="email">Correo Electrónico</label>
                 <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
-            </div>
+    </div>
 
             <div class="form-group">
                 <label for="profile_photo">URL de Foto de Perfil</label>
                 <input type="url" id="profile_photo" name="profile_photo" value="{{ current_user.profile_photo }}">
-            </div>
+    </div>
 
             <div class="form-group">
                 <label for="password">Nueva Contraseña (dejar en blanco para mantener la actual)</label>
                 <input type="password" id="password" name="password">
-            </div>
+                    </div>
 
             <button type="submit">Actualizar Perfil</button>
         </form>
@@ -821,8 +821,8 @@ PROGRESS_TEMPLATE = '''
             .navbar {
                 flex-direction: column;
                 gap: 15px;
-                text-align: center;
-            }
+            text-align: center;
+        }
 
             .nav-links {
                 flex-direction: column;
@@ -855,7 +855,7 @@ PROGRESS_TEMPLATE = '''
                 <div class="progress-header">
                     <span class="progress-icon">{{ item.icon }}</span>
                     <h2 class="progress-title">{{ item.name }}</h2>
-                </div>
+    </div>
 
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: {{ item.progress }}%; background: {{ item.color }}"></div>
@@ -865,24 +865,24 @@ PROGRESS_TEMPLATE = '''
                     <div class="stat-item">
                         <div class="stat-value">{{ item.completed_cards }}/{{ item.total_cards }}</div>
                         <div class="stat-label">Tarjetas Completadas</div>
-                    </div>
+                </div>
                     <div class="stat-item">
                         <div class="stat-value">{{ item.best_score }}</div>
                         <div class="stat-label">Mejor Puntuación</div>
-                    </div>
+                        </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ item.progress }}%</div>
+                        <div class="stat-value">{{ "%.1f"|format(item.progress) }}%</div>
                         <div class="stat-label">Progreso Total</div>
-                    </div>
+                        </div>
                     <div class="stat-item">
                         <div class="stat-value">{{ item.last_activity }}</div>
                         <div class="stat-label">Última Actividad</div>
-                    </div>
-                </div>
-            </div>
+                        </div>
+                        </div>
+                        </div>
             {% endfor %}
-        </div>
-    </div>
+                        </div>
+                    </div>
 </body>
 </html>
 '''
@@ -1086,9 +1086,9 @@ FLASHCARD_TEMPLATE = '''
     </nav>
 
     <div class="container">
-        <div class="progress-bar">
+                <div class="progress-bar">
             <div class="progress-fill" id="progressBar" style="width: 0%"></div>
-        </div>
+                </div>
 
         <div class="flashcard" id="flashcard">
             <div class="question" id="question"></div>
@@ -1096,8 +1096,8 @@ FLASHCARD_TEMPLATE = '''
             <div class="options" id="options"></div>
             <div class="feedback" id="feedback"></div>
             <button class="next-button" id="nextButton">Siguiente</button>
-        </div>
-    </div>
+                </div>
+            </div>
 
     <script>
         let currentCardIndex = 0;
@@ -1186,7 +1186,7 @@ FLASHCARD_TEMPLATE = '''
 
         // Guardar el progreso
         async function saveProgress() {
-            const percentage = (score / cards.length) * 100;
+            const percentage = Math.round((score / cards.length) * 1000) / 10; // Redondear a 1 decimal
             const completed = currentCardIndex >= cards.length - 1;
 
             try {
@@ -1395,7 +1395,7 @@ def save_progress():
 
         # Actualizar el progreso
         progress.score = max(progress.score, int(data['score']))
-        progress.percentage = max(progress.percentage, float(data['percentage']))
+        progress.percentage = round(max(progress.percentage, float(data['percentage'])), 1)  # Redondeamos a 1 decimal
         progress.completed_cards = int((float(data['percentage']) / 100) * 3)  # 3 cards per category
         progress.completed = data.get('completed', False)
         progress.updated_at = datetime.utcnow()
@@ -1601,7 +1601,7 @@ def get_all_progress():
             if progress:
                 progress_data[category] = {
                     'score': progress.score,
-                    'percentage': progress.percentage,
+                    'percentage': round(progress.percentage, 1),  # Redondeamos a 1 decimal
                     'completed_cards': progress.completed_cards,
                     'completed': progress.completed,
                     'last_activity': progress.updated_at.strftime('%d/%m/%Y')
@@ -1751,7 +1751,7 @@ def init_db():
         
         if user_count == 0:
             print("Inicializando flashcards...")
-            init_flashcards()
+        init_flashcards()
             print("Flashcards inicializadas correctamente")
         return True
     except Exception as e:
