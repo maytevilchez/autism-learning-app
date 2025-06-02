@@ -3,422 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plataforma de Aprendizaje para Autismo</title>
+    <title>Sistema de Aprendizaje para Niños con Autismo</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- React CDN -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <!-- Axios para peticiones HTTP -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- Estilos -->
-    <link rel="stylesheet" href="StudyFields.css">
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
 
-        .auth-container {
-            max-width: 400px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-            backdrop-filter: blur(4px);
-        }
-
-        .auth-form {
+        body {
+            min-height: 100vh;
+            background: #E3F2FD;
             display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
-        .auth-form input {
-            padding: 12px;
-            border: 2px solid #e1e1e1;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .auth-form input:focus {
-            border-color: #4A90E2;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-        }
-
-        .auth-form button {
-            padding: 12px;
-            background: linear-gradient(45deg, #4A90E2, #67B26F);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .auth-form button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .auth-toggle {
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
             text-align: center;
-            margin-top: 1rem;
+            max-width: 800px;
+            width: 100%;
         }
 
-        .auth-toggle button {
-            background: none;
-            border: none;
-            color: #4A90E2;
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-decoration: underline;
+        h1 {
+            color: #0091FF;
+            font-size: 2.5em;
+            margin-bottom: 20px;
         }
 
-        .error-message {
-            color: #e74c3c;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
         }
 
-        .success-message {
-            color: #27ae60;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease forwards;
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #0091FF;
+        }
+
+        .feature-title {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #0091FF;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #007acc;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <!-- Componentes -->
-    <script type="text/babel">
-        const AuthContext = React.createContext(null);
+    <div class="container">
+        <h1>Sistema de Aprendizaje para Niños con Autismo</h1>
+        <p class="description">
+            Una plataforma educativa diseñada específicamente para apoyar el aprendizaje y desarrollo de niños con autismo,
+            ofreciendo una experiencia interactiva y personalizada.
+        </p>
 
-        const AuthProvider = ({ children }) => {
-            const [user, setUser] = React.useState(null);
-            const [loading, setLoading] = React.useState(true);
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">😊</div>
+                <h3 class="feature-title">Desarrollo Emocional</h3>
+                <p class="feature-description">
+                    Aprende a reconocer y comprender diferentes emociones y expresiones faciales.
+                </p>
+            </div>
 
-            React.useEffect(() => {
-                // Verificar si hay una sesión activa
-                const checkAuth = async () => {
-                    try {
-                        const response = await axios.get('http://localhost:5000/check-auth');
-                        if (response.data.authenticated) {
-                            setUser(response.data.user);
-                        }
-                    } catch (error) {
-                        console.error('Error checking auth:', error);
-                    } finally {
-                        setLoading(false);
-                    }
-                };
-                checkAuth();
-            }, []);
+            <div class="feature">
+                <div class="feature-icon">📚</div>
+                <h3 class="feature-title">Conceptos Básicos</h3>
+                <p class="feature-description">
+                    Aprende formas, colores y números de manera interactiva y divertida.
+                </p>
+            </div>
 
-            return (
-                <AuthContext.Provider value={{ user, setUser, loading }}>
-                    {children}
-                </AuthContext.Provider>
-            );
-        };
+            <div class="feature">
+                <div class="feature-icon">🌍</div>
+                <h3 class="feature-title">Conocimiento del Entorno</h3>
+                <p class="feature-description">
+                    Explora y aprende sobre animales, clima y elementos de la naturaleza.
+                </p>
+            </div>
+        </div>
 
-        const Login = ({ onToggleAuth }) => {
-            const [formData, setFormData] = React.useState({ email: '', password: '' });
-            const [error, setError] = React.useState('');
-            const { setUser } = React.useContext(AuthContext);
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setError('');
-                try {
-                    const response = await axios.post('http://localhost:5000/login', formData);
-                    setUser(response.data.user);
-                } catch (error) {
-                    setError(error.response?.data?.message || 'Error al iniciar sesión');
-                }
-            };
-
-            return (
-                <div className="auth-container fade-in">
-                    <h2>Iniciar Sesión</h2>
-                    <form className="auth-form" onSubmit={handleSubmit}>
-                        <input
-                            type="email"
-                            placeholder="Correo electrónico"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            required
-                        />
-                        <input
-                            type="password"
-                            placeholder="Contraseña"
-                            value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
-                            required
-                        />
-                        <button type="submit">Iniciar Sesión</button>
-                        {error && <div className="error-message">{error}</div>}
-                    </form>
-                    <div className="auth-toggle">
-                        <button onClick={onToggleAuth}>
-                            ¿No tienes cuenta? Regístrate aquí
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        const Register = ({ onToggleAuth }) => {
-            const [formData, setFormData] = React.useState({
-                name: '',
-                email: '',
-                password: '',
-                confirmPassword: ''
-            });
-            const [error, setError] = React.useState('');
-            const [success, setSuccess] = React.useState('');
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setError('');
-                setSuccess('');
-
-                if (formData.password !== formData.confirmPassword) {
-                    setError('Las contraseñas no coinciden');
-                    return;
-                }
-
-                try {
-                    await axios.post('http://localhost:5000/register', {
-                        name: formData.name,
-                        email: formData.email,
-                        password: formData.password
-                    });
-                    setSuccess('Registro exitoso. Ya puedes iniciar sesión.');
-                    setTimeout(() => onToggleAuth(), 2000);
-                } catch (error) {
-                    setError(error.response?.data?.message || 'Error al registrarse');
-                }
-            };
-
-            return (
-                <div className="auth-container fade-in">
-                    <h2>Registro</h2>
-                    <form className="auth-form" onSubmit={handleSubmit}>
-                        <input
-                            type="text"
-                            placeholder="Nombre completo"
-                            value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            required
-                        />
-                        <input
-                            type="email"
-                            placeholder="Correo electrónico"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            required
-                        />
-                        <input
-                            type="password"
-                            placeholder="Contraseña"
-                            value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
-                            required
-                        />
-                        <input
-                            type="password"
-                            placeholder="Confirmar contraseña"
-                            value={formData.confirmPassword}
-                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                            required
-                        />
-                        <button type="submit">Registrarse</button>
-                        {error && <div className="error-message">{error}</div>}
-                        {success && <div className="success-message">{success}</div>}
-                    </form>
-                    <div className="auth-toggle">
-                        <button onClick={onToggleAuth}>
-                            ¿Ya tienes cuenta? Inicia sesión aquí
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        const App = () => {
-            const [showLogin, setShowLogin] = React.useState(true);
-            const { user, loading } = React.useContext(AuthContext);
-
-            if (loading) {
-                return <div>Cargando...</div>;
-            }
-
-            if (!user) {
-                return showLogin ? 
-                    <Login onToggleAuth={() => setShowLogin(false)} /> :
-                    <Register onToggleAuth={() => setShowLogin(true)} />;
-            }
-
-            return <StudyFields />;
-        };
-
-        // StudyFields component (existing code)
-        const StudyFields = () => {
-            const [selectedField, setSelectedField] = React.useState(null);
-            const [animation, setAnimation] = React.useState('fadeIn');
-            const [flashcards, setFlashcards] = React.useState([]);
-            const { user, setUser } = React.useContext(AuthContext);
-
-            const handleLogout = async () => {
-                try {
-                    await axios.post('http://localhost:5000/logout');
-                    setUser(null);
-                } catch (error) {
-                    console.error('Error logging out:', error);
-                }
-            };
-
-            const learningFields = {
-                'Desarrollo Emocional': {
-                    icon: '😊',
-                    description: 'Aprende a identificar y expresar emociones',
-                    color: 'linear-gradient(45deg, #FF9A9E, #FAD0C4)',
-                    route: 'emociones'
-                },
-                'Conceptos Básicos': {
-                    icon: '🎨',
-                    description: 'Explora colores, formas y números',
-                    color: 'linear-gradient(45deg, #A8EDEA, #FED6E3)',
-                    route: 'conceptos'
-                },
-                'Conocimiento del Entorno': {
-                    icon: '🌍',
-                    description: 'Descubre el mundo que te rodea',
-                    color: 'linear-gradient(45deg, #96FBC4, #F9F586)',
-                    route: 'entorno'
-                }
-            };
-
-            const handleFieldClick = async (field) => {
-                setAnimation('fadeOut');
-                try {
-                    const response = await axios.get(`http://localhost:5000/api/flashcards/${learningFields[field].route}`, {
-                        withCredentials: true
-                    });
-                    setFlashcards(response.data);
-                    setTimeout(() => {
-                        setSelectedField(field);
-                        setAnimation('fadeIn');
-                    }, 300);
-                } catch (error) {
-                    console.error('Error fetching flashcards:', error);
-                    alert('Error al cargar las tarjetas de aprendizaje');
-                }
-            };
-
-            const handleBack = () => {
-                setAnimation('fadeOut');
-                setTimeout(() => {
-                    setSelectedField(null);
-                    setFlashcards([]);
-                    setAnimation('fadeIn');
-                }, 300);
-            };
-
-            if (selectedField) {
-                return (
-                    <div className={`flashcards-view ${animation}`}>
-                        <div className="flashcards-header">
-                            <button className="back-button" onClick={handleBack}>
-                                ← Volver a Campos de Estudio
-                            </button>
-                            <h2>
-                                <span className="field-icon">{learningFields[selectedField].icon}</span>
-                                {selectedField}
-                            </h2>
-                        </div>
-                        <div className="flashcards-container">
-                            {flashcards.map((card, index) => (
-                                <div key={index} className="flashcard">
-                                    <img src={card.image_url} alt={card.question} />
-                                    <h3>{card.question}</h3>
-                                    <div className="options">
-                                        {JSON.parse(card.options).map((option, optIndex) => (
-                                            <button 
-                                                key={optIndex}
-                                                onClick={() => {
-                                                    const isCorrect = optIndex === card.correct_option;
-                                                    alert(isCorrect ? '¡Correcto! ' + card.feedback : 'Incorrecto, intenta de nuevo');
-                                                }}
-                                            >
-                                                {option}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="study-fields-container">
-                    <div className="header">
-                        <h1>¿Qué quieres aprender hoy?</h1>
-                        <button 
-                            onClick={handleLogout}
-                            className="logout-button"
-                        >
-                            Cerrar Sesión
-                        </button>
-                    </div>
-                    <div className={`study-fields-grid ${animation}`}>
-                        {Object.entries(learningFields).map(([field, info], index) => (
-                            <div 
-                                key={field}
-                                className="field-card"
-                                onClick={() => handleFieldClick(field)}
-                                style={{
-                                    background: info.color
-                                }}
-                            >
-                                <div className="field-icon">{info.icon}</div>
-                                <h2>{field}</h2>
-                                <p>{info.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
-        };
-
-        // Renderizar la aplicación
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(
-            <AuthProvider>
-                <App />
-            </AuthProvider>
-        );
-    </script>
+        <a href="https://github.com/maytevilchez/autism-learning-app" class="cta-button">Ver en GitHub</a>
+    </div>
 </body>
 </html> 
