@@ -1,102 +1,52 @@
 # Sistema de Aprendizaje para Niños con Autismo
 
-Esta es una plataforma web diseñada para ayudar en el aprendizaje de niños con autismo, enfocándose en tres áreas principales:
-- Desarrollo Emocional
-- Conceptos Básicos
-- Conocimiento del Entorno
+Una plataforma educativa diseñada específicamente para apoyar el aprendizaje y desarrollo de niños con autismo, ofreciendo una experiencia interactiva y personalizada.
 
-## Características
+## Características Principales
 
-- Sistema de autenticación de usuarios
-- Dashboard interactivo
-- Tarjetas de aprendizaje (flashcards)
-- Seguimiento de progreso
-- Interfaz adaptada para niños
-- Diseño responsivo
+### 😊 Desarrollo Emocional
+- Aprende a reconocer y comprender diferentes emociones
+- Ejercicios interactivos con expresiones faciales
+- Retroalimentación positiva y adaptativa
 
-## Requisitos
+### 📚 Conceptos Básicos
+- Aprende formas, colores y números
+- Actividades interactivas y divertidas
+- Progresión gradual de dificultad
 
-- Python 3.8 o superior
-- pip (gestor de paquetes de Python)
+### 🌍 Conocimiento del Entorno
+- Explora el mundo que te rodea
+- Aprende sobre animales, clima y naturaleza
+- Contenido adaptado y accesible
 
-## Instalación
+## Tecnologías Utilizadas
 
-1. Clonar el repositorio o descargar los archivos
+- Python/Flask para el backend
+- SQLite para la base de datos
+- HTML/CSS/JavaScript para el frontend
+- Diseño responsivo y accesible
 
-2. Crear un entorno virtual (recomendado):
+## Instalación Local
+
+1. Clona el repositorio:
 ```bash
-python -m venv venv
+git clone https://github.com/maytevilchez/autism-learning-app.git
 ```
 
-3. Activar el entorno virtual:
-- Windows:
-```bash
-venv\Scripts\activate
-```
-- Linux/Mac:
-```bash
-source venv/bin/activate
-```
-
-4. Instalar las dependencias:
+2. Instala las dependencias:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Uso
-
-1. Iniciar la aplicación:
+3. Ejecuta la aplicación:
 ```bash
 python app.py
 ```
 
-2. Abrir un navegador web y visitar:
-```
-http://127.0.0.1:5000
-```
-
-3. Registrar una cuenta nueva o iniciar sesión si ya tienes una
-
-## Estructura de la Aplicación
-
-- `app.py`: Archivo principal de la aplicación Flask
-- `autism_learning.db`: Base de datos SQLite
-- `requirements.txt`: Lista de dependencias
-- `templates/`: Directorio con las plantillas HTML (integradas en app.py)
-
-## Desarrollo
-
-La aplicación está construida con:
-- Flask (Backend)
-- SQLite (Base de datos)
-- HTML/CSS/JavaScript (Frontend)
-- Poppins Font Family (UI)
-
-## Seguridad
-
-- Contraseñas hasheadas
-- Sesiones seguras
-- Protección CSRF
-- Manejo de errores
-
-## Características de Accesibilidad
-
-- Interfaz simplificada y clara
-- Alto contraste para mejor visibilidad
-- Animaciones reducidas para evitar distracciones
-- Botones grandes y fáciles de clickear
-- Instrucciones claras y concisas
-
 ## Contribuir
 
-Si deseas contribuir al proyecto:
-
-1. Haz un fork del repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+Las contribuciones son bienvenidas. Por favor, lee las guías de contribución antes de enviar un pull request.
 
 ## Licencia
 
-Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más detalles. 
+Este proyecto está bajo la Licencia MIT. 
