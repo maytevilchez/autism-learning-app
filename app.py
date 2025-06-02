@@ -5,6 +5,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
+from sqlalchemy import create_engine, text
 
 app = Flask(__name__)
 CORS(app, 
@@ -18,10 +19,54 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'tu_clave_secreta_aqui')
 
 # Configuración de la base de datos para Render
+print("Configurando conexión a la base de datos...")
 database_url = os.environ.get('DATABASE_URL')
-if database_url and database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///' + os.path.join(basedir, 'autism_learning.db')
+
+if database_url:
+    print(f"URL de base de datos encontrada, comienza con: {database_url[:10]}...")
+    try:
+        # Render proporciona la URL en formato postgres://, necesitamos convertirla a postgresql://
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+            print("URL convertida de postgres:// a postgresql://")
+        
+        # Asegurarse de que la URL tenga el formato correcto
+        if not database_url.startswith("postgresql://"):
+            raise ValueError("La URL de la base de datos debe comenzar con postgresql://")
+            
+        # Probar la conexión
+        print("Probando conexión a la base de datos...")
+        engine = create_engine(database_url)
+        with engine.connect() as conn:
+            conn.execute(text('SELECT 1'))
+        print("¡Prueba de conexión exitosa!")
+            
+    except Exception as e:
+        print(f"Error al conectar con la base de datos: {e}")
+        print("Cambiando a base de datos SQLite local")
+        database_url = 'sqlite:///' + os.path.join(basedir, 'autism_learning.db')
+else:
+    print("No se encontró URL de base de datos, usando SQLite")
+    database_url = 'sqlite:///' + os.path.join(basedir, 'autism_learning.db')
+
+print(f"Tipo final de base de datos: {database_url.split('://')[0]}")
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+
+# Asegurarse de que la base de datos se inicialice al arrancar
+with app.app_context():
+    print("Inicializando base de datos...")
+    try:
+        # Crear todas las tablas
+        db.create_all()
+        print("Tablas creadas correctamente")
+        
+        # Verificar si necesitamos inicializar datos
+        if User.query.count() == 0:
+            print("Inicializando flashcards...")
+            init_flashcards()
+            print("Flashcards inicializadas correctamente")
+    except Exception as e:
+        print(f"Error al inicializar la base de datos: {e}")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SECURE'] = True
@@ -2155,23 +2200,57 @@ def init_flashcards():
 @app.route('/api/flashcards/<category>')
 @login_required
 def get_flashcards(category):
-    cards = Flashcard.query.filter_by(category=category).all()
-    return jsonify([{
-        'id': card.id,
-        'question': card.question,
-        'image_url': card.image_url,
-        'options': eval(card.options),
-        'correct_option': card.correct_option,
-        'feedback': card.feedback
-    } for card in cards])
+    try:
+        cards = Flashcard.query.filter_by(category=category).all()
+        if not cards:
+            return jsonify({'error': 'No se encontraron flashcards para esta categoría'}), 404
+            
+        return jsonify([{
+            'id': card.id,
+            'question': card.question,
+            'image_url': card.image_url,
+            'options': eval(card.options),
+            'correct_option': card.correct_option,
+            'feedback': card.feedback
+        } for card in cards])
+    except Exception as e:
+        print(f"Error getting flashcards: {e}")
+        return jsonify({'error': 'Error al obtener las flashcards'}), 500
 
 def init_db():
     with app.app_context():
-        db.create_all()
-        init_flashcards()
-        print("Database initialized successfully!")
+        try:
+            print("Starting database initialization...")
+            
+            # Drop all tables first to ensure a clean slate
+            print("Dropping existing tables...")
+            db.drop_all()
+            
+            # Create all tables
+            print("Creating database tables...")
+            db.create_all()
+            
+            # Verify tables were created
+            print("Verifying tables...")
+            tables = db.engine.table_names()
+            print(f"Created tables: {tables}")
+            
+            # Initialize data if needed
+            if User.query.count() == 0:
+                print("Initializing flashcards...")
+                init_flashcards()
+                print("Flashcards initialized successfully")
+            
+            print("Database initialization completed successfully!")
+            return True
+        except Exception as e:
+            print(f"Error initializing database: {e}")
+            return False
+
+# Initialize database when the app starts
+with app.app_context():
+    print("Application starting - Initializing database...")
+    init_db()
 
 if __name__ == '__main__':
-    init_db()
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port) 
+    app.run(debug=True) 
