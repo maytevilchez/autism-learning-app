@@ -1,0 +1,14 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-CORS==4.0.0
+Werkzeug==2.3.7
+SQLAlchemy==1.4.23
+python-dotenv==1.0.0
+bcrypt==4.0.1
+transformers==4.30.2
+torch==2.0.1
+numpy==1.24.3
+pillow==10.0.0
+python-jose==3.3.0
+gunicorn==21.2.0 
