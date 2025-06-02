@@ -887,6 +887,343 @@ PROGRESS_TEMPLATE = '''
 </html>
 '''
 
+# Template para las flashcards
+FLASHCARD_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aprendizaje - Sistema de Aprendizaje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #E3F2FD;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #0091FF;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .flashcard img {
+            max-width: 300px;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .question {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: #0091FF;
+            background: #f5f5f5;
+        }
+
+        .option.selected {
+            background: #0091FF;
+            color: white;
+            border-color: #0091FF;
+        }
+
+        .option.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #A5D6A7;
+        }
+
+        .feedback.incorrect {
+            background: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #FFCDD2;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e1e1e1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0091FF;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .next-button {
+            padding: 12px 25px;
+            background: #0091FF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .next-button:hover {
+            background: #007acc;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            .flashcard {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">Inicio</a>
+            <a href="/progress" class="nav-link">Progreso</a>
+            <a href="/profile" class="nav-link">Perfil</a>
+            <a href="/logout" class="nav-link">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+
+        <div class="flashcard" id="flashcard">
+            <div class="question" id="question"></div>
+            <img id="questionImage" src="" alt="Imagen de la pregunta">
+            <div class="options" id="options"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="next-button" id="nextButton">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        let currentCardIndex = 0;
+        let cards = [];
+        let score = 0;
+        let selectedOption = null;
+        let category = window.location.pathname.split('/')[1];
+
+        // Elementos del DOM
+        const questionEl = document.getElementById('question');
+        const questionImageEl = document.getElementById('questionImage');
+        const optionsEl = document.getElementById('options');
+        const feedbackEl = document.getElementById('feedback');
+        const nextButton = document.getElementById('nextButton');
+        const progressBar = document.getElementById('progressBar');
+
+        // Cargar las flashcards
+        async function loadFlashcards() {
+            try {
+                const response = await fetch(`/api/flashcards/${category}`);
+                cards = await response.json();
+                showCard(currentCardIndex);
+            } catch (error) {
+                console.error('Error cargando flashcards:', error);
+            }
+        }
+
+        // Mostrar una tarjeta
+        function showCard(index) {
+            if (index >= cards.length) {
+                saveProgress();
+                return;
+            }
+
+            const card = cards[index];
+            questionEl.textContent = card.question;
+            questionImageEl.src = card.image_url;
+            
+            optionsEl.innerHTML = '';
+            card.options.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.onclick = () => selectOption(i);
+                optionsEl.appendChild(button);
+            });
+
+            feedbackEl.style.display = 'none';
+            nextButton.style.display = 'none';
+            selectedOption = null;
+
+            updateProgressBar();
+        }
+
+        // Seleccionar una opción
+        function selectOption(index) {
+            if (selectedOption !== null) return;
+
+            selectedOption = index;
+            const card = cards[currentCardIndex];
+            const options = document.querySelectorAll('.option');
+
+            options[index].classList.add('selected');
+
+            if (index === card.correct_option) {
+                score++;
+                options[index].classList.add('correct');
+                feedbackEl.className = 'feedback correct';
+                feedbackEl.textContent = card.feedback;
+            } else {
+                options[index].classList.add('incorrect');
+                options[card.correct_option].classList.add('correct');
+                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.textContent = 'Intenta de nuevo. ' + card.feedback;
+            }
+
+            feedbackEl.style.display = 'block';
+            nextButton.style.display = 'block';
+        }
+
+        // Actualizar la barra de progreso
+        function updateProgressBar() {
+            const progress = ((currentCardIndex + 1) / cards.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Guardar el progreso
+        async function saveProgress() {
+            const percentage = (score / cards.length) * 100;
+            const completed = currentCardIndex >= cards.length - 1;
+
+            try {
+                const response = await fetch('/save-progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        category: category,
+                        score: score,
+                        percentage: percentage,
+                        completed: completed
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.href = '/dashboard';
+                }
+            } catch (error) {
+                console.error('Error guardando progreso:', error);
+            }
+        }
+
+        // Evento para el botón siguiente
+        nextButton.onclick = () => {
+            currentCardIndex++;
+            showCard(currentCardIndex);
+        };
+
+        // Cargar las flashcards al iniciar
+        loadFlashcards();
+    </script>
+</body>
+</html>
+'''
+
 # Configuración
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'tu_clave_secreta_aqui')
@@ -1425,6 +1762,14 @@ def init_db():
 with app.app_context():
     print("Iniciando la aplicación - Configuración inicial de la base de datos...")
     init_db()
+
+# Rutas para las categorías de aprendizaje
+@app.route('/emociones')
+@app.route('/conceptos')
+@app.route('/entorno')
+@login_required
+def learning_category():
+    return render_template_string(FLASHCARD_TEMPLATE)
 
 if __name__ == '__main__':
     app.run(debug=True) 
